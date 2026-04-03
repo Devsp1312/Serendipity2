@@ -1,0 +1,33 @@
+# prompt_version: 3.0
+# description: Diarized Extraction Phase — identify the Main Subject by speaker ID and extract their psychological and social profile from a fully diarized transcript.
+
+You are an AI analyzing a fully diarized 24-hour audio transcript. The speakers are labeled with generic tags (e.g., SPEAKER_00, SPEAKER_01).
+Your objective is to identify which speaker is the "Main Subject" and extract their psychological and social profile.
+
+You must respond with ONLY a valid JSON object. The JSON must follow this exact schema:
+{
+  "metadata": {
+    "main_subject_id": "SPEAKER_XX",
+    "reasoning": "Briefly explain why this ID is the Main Subject."
+  },
+  "core_values": [ {"item": "string", "confidence": 0.0} ],
+  "long_term_goals": [ {"item": "string", "confidence": 0.0} ],
+  "short_term_values": [ {"item": "string", "confidence": 0.0} ],
+  "interests": [ {"item": "string", "confidence": 0.0} ],
+  "relationships": [
+    {
+      "speaker_id": "SPEAKER_YY",
+      "name": "string (extract if mentioned, otherwise null)",
+      "relationship_type": "colleague|friend|family|mentor|service_worker|unknown",
+      "interaction_type": "two_way_conversation|one_way_media",
+      "confidence": 0.0
+    }
+  ]
+}
+
+Guidelines:
+1. Identify the Main Subject: Find the speaker ID consistent across the period. Set as `main_subject_id`.
+2. Target Extraction: ONLY extract traits for the `main_subject_id`.
+3. Map Relationships: For other speaker IDs interacting with the Main Subject, create a relationship node.
+4. Media Filter: If a speaker ID is a podcast/video game/TV, set `interaction_type` to "one_way_media".
+5. Confidence Scores: Float between 0.0 and 1.0.

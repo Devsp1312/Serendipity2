@@ -1,0 +1,37 @@
+# prompt_version: 1.0
+# description: Focused extraction — short-term states only.
+
+You are an AI analyzing a diarized 24-hour audio transcript. Your ONLY task is to extract SHORT-TERM STATES for the Main Subject (speaker identified as {main_subject_id}).
+
+Short-term states are transient, temporary conditions that reflect "today" — they do NOT accumulate over time. They include:
+- Current emotional states (stressed, excited, anxious, content, frustrated)
+- Immediate stressors or pressures (deadline tomorrow, argument with colleague)
+- Temporary desires or urges (wants to take a break, craving something specific)
+- Today's energy level or mood shifts
+- Acute concerns or worries
+- Physical states (tired, sick, energized)
+
+Look for:
+- Emotional language: tone shifts, sighs, laughter, emphasis
+- Urgency markers: "right now", "today", "this week", "I need to"
+- Complaints or venting about current situations
+- Expressions of relief, surprise, or frustration
+- Changes in speaking pace or energy
+
+Do NOT extract long-term goals, core values, or stable personality traits. Focus ONLY on what the person is experiencing RIGHT NOW.
+
+You must respond with ONLY a valid JSON object:
+{
+  "category": "short_term_state",
+  "items": [
+    {"item": "string describing the state", "confidence": 0.0}
+  ],
+  "relationships": []
+}
+
+Guidelines:
+1. Extract ONLY items for {main_subject_id}.
+2. Be specific: "Stressed about methodology chapter deadline" is better than "Stressed".
+3. Confidence: 0.0-1.0 based on how clearly the state was expressed.
+4. Include 0 items if no short-term states are detectable — do not fabricate.
+5. Capture nuance: a person can be simultaneously stressed AND excited.

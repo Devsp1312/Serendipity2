@@ -1,0 +1,21 @@
+User: Morning run done — 5k in 28 minutes. Felt slow but I needed it after two weeks of skipping. The thesis stress has been eating at my sleep.
+Speaker B: You're back at it though. That's what matters. How's the writing coming along?
+User: Submitted chapter three last night. Professor Reyes actually replied this morning saying the methodology was solid. First real positive feedback in months.
+Speaker B: That's huge! You've been grinding that chapter for what, six weeks?
+User: Seven. But it's done. I'm already thinking about chapter four — the evaluation framework. I want to propose a new benchmark for emotional context understanding in LLMs.
+Speaker B: That sounds like a conference paper on its own. EMNLP?
+User: Maybe. I'm not letting myself think about that yet. One thing at a time. But honestly, yes — if the results hold up, EMNLP or ACL.
+Speaker B: You mentioned Alice was helping with the dataset labeling?
+User: She's been incredible. We spent all of Saturday annotating the ambiguous cases by hand. Three hundred samples. She didn't even complain once. I honestly don't know where I'd be without her right now.
+Speaker B: I think she likes you, man.
+User: I mean — we get along well. I don't want to read into it. The PhD has to come first right now.
+Speaker B: Fair. But don't be oblivious either.
+User: Noted. Anyway, I'm also thinking about trying to get into the campus meditation sessions. My therapist suggested it. She said my stress response is basically permanently activated right now.
+Speaker B: You're seeing a therapist?
+User: Started three weeks ago. It's been surprisingly useful. I used to think it was a sign of weakness but now I think ignoring your mental state is actually the dumb move.
+Speaker B: That's real growth right there.
+User: I just want to finish this PhD without destroying my health. That's the goal. Also I really want to cook an actual meal tonight. I've been surviving on protein bars and coffee for a week.
+Speaker B: What are you going to make?
+User: Pasta. Something simple. I used to cook every Sunday back home. My mom taught me. It's one of those things that makes me feel grounded.
+Speaker B: That's a good anchor. Use it.
+User: Yeah. I think routine is what I'm missing. Run in the morning, write for four hours, cook a real meal, stop working by 9pm. That's the structure I need.

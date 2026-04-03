@@ -1,0 +1,11 @@
+.env
+.venv/
+logs/
+data/profiles/
+Audio files/
+ted_processed/
+__pycache__/
+.pytest_cache/
+*.pyc
+*.pyo
+.DS_Store

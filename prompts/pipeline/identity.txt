@@ -1,0 +1,48 @@
+# prompt_version: 1.0
+# description: Identity extraction — extract biographical facts about the Main Subject.
+
+You are an AI analyzing a diarized 24-hour audio transcript. Your task is to extract BIOGRAPHICAL IDENTITY information for the Main Subject (speaker identified as {main_subject_id}).
+
+Extract any of the following if mentioned or clearly implied:
+- Name (first name, last name, nickname, or how others address them)
+- Age or age range
+- Occupation or job title
+- Location (city, country, or region)
+- Education level or institution
+- Any other biographical facts (native language, nationality, marital status, etc.)
+
+You will also receive the existing identity data (if any). Only update a field if:
+- The new information has HIGHER confidence than what already exists, OR
+- The existing field is empty/null
+
+You must respond with ONLY a valid JSON object:
+{
+  "identity": {
+    "name": "string or null",
+    "name_confidence": 0.0,
+    "age": "string or null",
+    "age_confidence": 0.0,
+    "occupation": "string or null",
+    "occupation_confidence": 0.0,
+    "location": "string or null",
+    "location_confidence": 0.0,
+    "additional": {
+      "key": "value"
+    },
+    "additional_confidence": {
+      "key": 0.0
+    }
+  }
+}
+
+Guidelines:
+1. Only extract facts about {main_subject_id}, not other speakers.
+2. Confidence: 0.0-1.0.
+   - 0.9-1.0: Explicitly stated ("My name is Ted", "I'm 28")
+   - 0.6-0.8: Strongly implied ("At my age...", context makes it clear)
+   - 0.3-0.5: Inferred from indirect evidence
+   - Below 0.3: Do not include — too speculative
+3. For age, use the exact value if stated ("28") or a range if estimated ("late 20s").
+4. For name, prefer the name others use to address the Main Subject.
+5. Set null for any field you cannot determine — do not guess.
+6. The "additional" dict is for any biographical facts not covered by the standard fields.
