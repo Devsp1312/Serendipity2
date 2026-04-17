@@ -1,0 +1,44 @@
+# Serendipity — Raspberry Pi 5 (ARM64, Bookworm) dependencies
+#
+# BEFORE pip install, install torch separately (PyPI has ARM64 wheels — do NOT use the
+# pytorch whl index, it only has x86 wheels):
+#   pip install torch
+#
+# Then install this file:
+#   pip install -r requirements-pi5.txt
+
+# LLM client (pure Python, works as-is)
+ollama>=0.6.1
+
+# Graph + data
+networkx>=3.2.1
+pandas>=2.0.0
+
+# Schema validation
+pydantic>=2.0.0
+
+# Web UI
+streamlit>=1.30.0
+
+# Audio transcription — ARM64 wheel ships via ctranslate2
+faster-whisper>=1.0.0
+
+# Audio alignment + speaker diarization
+# Install AFTER torch. whisperx is not reliably on PyPI — if this line fails,
+# install manually: pip install git+https://github.com/m-bain/whisperX.git
+whisperx
+
+# Transformers (used by pyannote / whisperx)
+transformers>=4.36.0
+
+# Speaker diarization — needs HF_TOKEN env var
+pyannote.audio>=3.1.0
+
+# QR code generation (pure Python + Pillow, no system deps)
+qrcode[pil]>=7.4
+
+# Config / env loading
+python-dotenv>=1.0.0
+
+# QR decode helper (scripts/decode_qr.py) — needs system: apt install libzbar0
+pyzbar

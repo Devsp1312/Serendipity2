@@ -9,7 +9,7 @@ interaction_type replaces tone, ExtractionItem replaces bare strings).
 import logging
 import pytest
 
-from src.schemas import (
+from src.core.schemas import (
     ExtractionItem,
     ExtractionMetadata,
     RelationshipEntry,
@@ -69,9 +69,13 @@ def test_name_is_optional():
     assert entry.name is None
 
 
-def test_confidence_out_of_range_raises():
-    with pytest.raises(Exception):  # Pydantic ValidationError
-        RelationshipEntry(speaker_id="SPEAKER_01", name="X", relationship_type="friend", confidence=1.5)
+def test_confidence_out_of_range_is_clamped():
+    # RelationshipEntry has a mode="before" validator that clamps rather than rejects
+    entry = RelationshipEntry(speaker_id="SPEAKER_01", name="X", relationship_type="friend", confidence=1.5)
+    assert entry.confidence == 1.0
+
+    entry_neg = RelationshipEntry(speaker_id="SPEAKER_01", confidence=-0.5)
+    assert entry_neg.confidence == 0.0
 
 
 # ─── GatekeeperAction coercion ────────────────────────────────────────────────

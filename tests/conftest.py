@@ -11,8 +11,8 @@ Fixtures are designed to be composable and dependency-free:
 import pytest
 import networkx as nx
 
-from src.graph_store import _fresh_graph
-from src.schemas import (
+from src.storage.graph import _fresh_graph
+from src.core.schemas import (
     ExtractionOutput,
     GatekeeperOutput,
     GatekeeperAction,

@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import networkx as nx
 from networkx.readwrite import json_graph
 
-from src.graph_store import (
+from src.storage.graph import (
     get_graph_path, get_snapshots_dir, make_node_id, _fresh_graph,
 )
 

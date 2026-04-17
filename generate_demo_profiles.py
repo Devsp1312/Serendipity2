@@ -18,11 +18,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from src.logger import setup_logging
+from src.core.logger import setup_logging
 setup_logging()
 
 import networkx as nx
-from src.graph_store import (
+from src.storage.graph import (
     _fresh_graph,
     make_node_id,
     save_graph,
@@ -30,7 +30,7 @@ from src.graph_store import (
     get_graph_path,
     get_snapshots_dir,
 )
-from src.config import PROFILES_DIR
+from src.core.config import PROFILES_DIR
 
 
 # ── Helper builders ──────────────────────────────────────────────────────────
@@ -903,7 +903,7 @@ def main():
         save_graph(final_G, model=final_model, profile=name)
 
         # Summary
-        from src.graph_store import get_profile_summary
+        from src.storage.graph import get_profile_summary
         summary = get_profile_summary(final_G)
         v = len(summary["core_values"])
         g = len(summary["long_term_goals"])
@@ -917,7 +917,7 @@ def main():
     print()
 
     for name in profiles:
-        from src.graph_store import list_snapshots
+        from src.storage.graph import list_snapshots
         snaps = list_snapshots(profile=name)
         print(f"  {name}: {len(snaps)} snapshots")
 

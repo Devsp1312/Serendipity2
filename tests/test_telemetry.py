@@ -7,7 +7,7 @@ and summary statistics.
 
 import pytest
 
-from src.telemetry import TelemetryCollector, RunMetrics, get_collector
+from src.core.telemetry import TelemetryCollector, RunMetrics, get_collector
 
 
 # ─── TelemetryCollector ───────────────────────────────────────────────────────

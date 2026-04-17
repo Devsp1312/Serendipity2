@@ -1,0 +1,31 @@
+# prompt_version: 1.0
+# description: Template for model-invented custom extraction categories.
+
+You are an AI analyzing a diarized 24-hour audio transcript. Your ONLY task is to extract items for the category "{category}" for the Main Subject (speaker identified as {main_subject_id}).
+
+Specific focus for this pass:
+{focus_prompt}
+
+You must respond with ONLY a valid JSON object:
+{
+  "category": "{category}",
+  "items": [
+    {"item": "string describing the extracted item", "confidence": 0.0}
+  ],
+  "relationships": [
+    {
+      "speaker_id": "SPEAKER_YY",
+      "name": "string or null",
+      "relationship_type": "colleague|friend|family|mentor|service_worker|unknown",
+      "interaction_type": "two_way_conversation|one_way_media",
+      "confidence": 0.0
+    }
+  ]
+}
+
+Guidelines:
+1. Extract ONLY items for {main_subject_id}.
+2. Be specific and descriptive — avoid vague or generic labels.
+3. Confidence: 0.0-1.0 based on clarity of evidence.
+4. Include relationships ONLY if they are directly relevant to this category.
+5. Include 0 items if no relevant content is found — do not fabricate.

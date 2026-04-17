@@ -7,14 +7,14 @@ multi-line turns, and turn statistics.
 
 import pytest
 
-from src.ingestion import (
+from src.pipeline.ingest import (
     Turn,
     parse_transcript,
     format_transcript_for_llm,
     get_turn_stats,
     validate_transcript_input,
 )
-from src.config import MAX_TRANSCRIPT_BYTES, MAX_SPEAKER_LABEL_LENGTH
+from src.core.config import MAX_TRANSCRIPT_BYTES, MAX_SPEAKER_LABEL_LENGTH
 
 
 # ─── validate_transcript_input ────────────────────────────────────────────────

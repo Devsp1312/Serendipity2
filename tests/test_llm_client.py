@@ -10,7 +10,7 @@ import pytest
 from pathlib import Path
 from unittest.mock import MagicMock, patch, call
 
-from src.llm_client import (
+from src.core.llm_client import (
     call_llm,
     load_prompt,
     get_extraction_prompt,
@@ -20,7 +20,7 @@ from src.llm_client import (
     OllamaUnavailableError,
     _prompt_cache,
 )
-from src.schemas import LLMSchemaError
+from src.core.schemas import LLMSchemaError
 
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -38,7 +38,7 @@ def _make_ollama_response(content: str):
 
 def test_call_llm_success_first_attempt():
     valid_json = '{"core_values": ["discipline"]}'
-    with patch("src.llm_client.ollama.chat", return_value=_make_ollama_response(valid_json)):
+    with patch("src.core.llm_client._ollama_client.chat", return_value=_make_ollama_response(valid_json)):
         result, raw = call_llm("sys", "user", "llama3", max_retries=0)
     assert result == {"core_values": ["discipline"]}
     assert raw == valid_json
@@ -54,8 +54,8 @@ def test_call_llm_retries_on_invalid_json():
         _make_ollama_response(bad),
         _make_ollama_response(good),
     ]
-    with patch("src.llm_client.ollama.chat", side_effect=responses), \
-         patch("src.llm_client.time.sleep"):  # Skip actual sleep in tests
+    with patch("src.core.llm_client._ollama_client.chat", side_effect=responses), \
+         patch("src.core.llm_client.time.sleep"):  # Skip actual sleep in tests
         result, raw = call_llm("sys", "user", "llama3", max_retries=1)
     assert result == {"key": "value"}
 
@@ -64,8 +64,8 @@ def test_call_llm_raises_after_max_retries():
     bad = "not json"
     responses = [_make_ollama_response(bad)] * 4  # more than max_retries
 
-    with patch("src.llm_client.ollama.chat", side_effect=responses), \
-         patch("src.llm_client.time.sleep"):
+    with patch("src.core.llm_client._ollama_client.chat", side_effect=responses), \
+         patch("src.core.llm_client.time.sleep"):
         with pytest.raises(LLMSchemaError, match="invalid JSON"):
             call_llm("sys", "user", "llama3", max_retries=2)
 
@@ -80,9 +80,9 @@ def test_call_llm_backoff_sleeps_between_retries():
         _make_ollama_response(bad),
         _make_ollama_response(good),
     ]
-    with patch("src.llm_client.ollama.chat", side_effect=responses), \
-         patch("src.llm_client.time.sleep") as mock_sleep, \
-         patch("src.llm_client.random.uniform", return_value=0.0):
+    with patch("src.core.llm_client._ollama_client.chat", side_effect=responses), \
+         patch("src.core.llm_client.time.sleep") as mock_sleep, \
+         patch("src.core.llm_client.random.uniform", return_value=0.0):
         call_llm("sys", "user", "llama3", max_retries=1)
 
     # sleep should have been called once (after the first failed attempt)
@@ -95,20 +95,20 @@ def test_call_llm_backoff_sleeps_between_retries():
 # ─── call_llm — connection errors ────────────────────────────────────────────
 
 def test_call_llm_raises_on_connection_error():
-    with patch("src.llm_client.ollama.chat", side_effect=ConnectionError("refused")):
+    with patch("src.core.llm_client._ollama_client.chat", side_effect=ConnectionError("refused")):
         with pytest.raises(OllamaUnavailableError, match="ollama serve"):
             call_llm("sys", "user", "llama3")
 
 
 def test_call_llm_raises_on_os_error():
-    with patch("src.llm_client.ollama.chat", side_effect=OSError("no socket")):
+    with patch("src.core.llm_client._ollama_client.chat", side_effect=OSError("no socket")):
         with pytest.raises(OllamaUnavailableError):
             call_llm("sys", "user", "llama3")
 
 
 def test_call_llm_raises_on_ollama_response_error():
     import ollama
-    with patch("src.llm_client.ollama.chat", side_effect=ollama.ResponseError("model not found")):
+    with patch("src.core.llm_client._ollama_client.chat", side_effect=ollama.ResponseError("model not found")):
         with pytest.raises(OllamaUnavailableError, match="ollama pull"):
             call_llm("sys", "user", "llama3")
 
@@ -116,7 +116,7 @@ def test_call_llm_raises_on_ollama_response_error():
 # ─── load_prompt ─────────────────────────────────────────────────────────────
 
 def test_load_prompt_loads_file(tmp_path, monkeypatch):
-    import src.llm_client as lc
+    import src.core.llm_client as lc
     # Clear cache to avoid stale entries from other tests
     lc._prompt_cache.clear()
 
@@ -132,7 +132,7 @@ def test_load_prompt_loads_file(tmp_path, monkeypatch):
 
 
 def test_load_prompt_strips_comment_lines(tmp_path, monkeypatch):
-    import src.llm_client as lc
+    import src.core.llm_client as lc
     lc._prompt_cache.clear()
 
     monkeypatch.setattr(lc, "PROMPTS_DIR", tmp_path)
@@ -147,7 +147,7 @@ def test_load_prompt_strips_comment_lines(tmp_path, monkeypatch):
 
 
 def test_load_prompt_caches_result(tmp_path, monkeypatch):
-    import src.llm_client as lc
+    import src.core.llm_client as lc
     lc._prompt_cache.clear()
 
     monkeypatch.setattr(lc, "PROMPTS_DIR", tmp_path)
@@ -163,7 +163,7 @@ def test_load_prompt_caches_result(tmp_path, monkeypatch):
 
 
 def test_load_prompt_raises_for_missing_file(tmp_path, monkeypatch):
-    import src.llm_client as lc
+    import src.core.llm_client as lc
     lc._prompt_cache.clear()
 
     monkeypatch.setattr(lc, "PROMPTS_DIR", tmp_path)
@@ -174,16 +174,16 @@ def test_load_prompt_raises_for_missing_file(tmp_path, monkeypatch):
 # ─── list_models / check_connection ──────────────────────────────────────────
 
 def test_list_models_returns_empty_on_failure():
-    with patch("src.llm_client.ollama.list", side_effect=Exception("unreachable")):
+    with patch("src.core.llm_client._ollama_client.list", side_effect=Exception("unreachable")):
         result = list_models()
     assert result == []
 
 
 def test_check_connection_true_when_reachable():
-    with patch("src.llm_client.ollama.list", return_value=MagicMock()):
+    with patch("src.core.llm_client._ollama_client.list", return_value=MagicMock()):
         assert check_connection() is True
 
 
 def test_check_connection_false_when_unreachable():
-    with patch("src.llm_client.ollama.list", side_effect=Exception("unreachable")):
+    with patch("src.core.llm_client._ollama_client.list", side_effect=Exception("unreachable")):
         assert check_connection() is False

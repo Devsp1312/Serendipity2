@@ -10,10 +10,10 @@ import pytest
 import networkx as nx
 from unittest.mock import patch
 
-from src.gatekeeper import apply_actions, run_gatekeeper
-from src.schemas import GatekeeperOutput, GatekeeperAction
-from src.config import DEFAULT_CONFIDENCE, STRENGTHEN_INCREMENT, CONFIDENCE_CAP
-from src.graph_store import _fresh_graph
+from src.pipeline.gatekeeper import apply_actions, run_gatekeeper
+from src.core.schemas import GatekeeperOutput, GatekeeperAction
+from src.core.config import DEFAULT_CONFIDENCE, STRENGTHEN_INCREMENT, CONFIDENCE_CAP
+from src.storage.graph import _fresh_graph
 
 
 # ─── apply_actions: core value / goal / state ────────────────────────────────
@@ -62,7 +62,7 @@ def test_strengthen_non_existent_node_treated_as_add(fresh_graph, caplog):
     output = GatekeeperOutput(actions=[
         GatekeeperAction(operation="strengthen", node_type="core_value", label="new_value", confidence=0.7),
     ])
-    with caplog.at_level(logging.WARNING, logger="src.gatekeeper"):
+    with caplog.at_level(logging.WARNING, logger="src.pipeline.gatekeeper"):
         G = apply_actions(fresh_graph, output)
     assert "cv_new_value" in G.nodes
     assert "treat" in caplog.text.lower() or "add" in caplog.text.lower()
@@ -178,9 +178,9 @@ def test_remove_relationship(sample_graph):
 # ─── run_gatekeeper (integration with mocked LLM) ────────────────────────────
 
 def test_run_gatekeeper_uses_gatekeeper_prompt(fresh_graph, mock_llm_gatekeeper_response):
-    with patch("src.gatekeeper.call_llm", return_value=(mock_llm_gatekeeper_response, "{}")) as mock_call, \
-         patch("src.gatekeeper.get_gatekeeper_prompt", return_value="test prompt"):
-        G, raw = run_gatekeeper(fresh_graph, __import__("src.schemas", fromlist=["ExtractionOutput"]).ExtractionOutput(), "llama3")
+    with patch("src.pipeline.gatekeeper.call_llm", return_value=(mock_llm_gatekeeper_response, "{}")) as mock_call, \
+         patch("src.pipeline.gatekeeper.get_gatekeeper_prompt", return_value="test prompt"):
+        G, raw = run_gatekeeper(fresh_graph, __import__("src.core.schemas", fromlist=["ExtractionOutput"]).ExtractionOutput(), "llama3")
     mock_call.assert_called_once()
     assert mock_call.call_args[1]["system_prompt"] == "test prompt"
 
@@ -188,7 +188,7 @@ def test_run_gatekeeper_uses_gatekeeper_prompt(fresh_graph, mock_llm_gatekeeper_
 @pytest.fixture
 def sample_graph():
     """Local sample graph for gatekeeper tests with discipline + Alice pre-populated."""
-    from src.graph_store import _fresh_graph
+    from src.storage.graph import _fresh_graph
     G = _fresh_graph()
     G.add_node("cv_discipline", node_type="core_value", label="discipline", evidence_count=2)
     G.add_edge("user", "cv_discipline", relation="holds_value", weight=0.8, intensity=0.8)

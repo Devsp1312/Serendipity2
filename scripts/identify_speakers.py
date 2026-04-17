@@ -15,7 +15,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.diarizer import run_diarization_pipeline
+from src.pipeline.diarize import run_diarization_pipeline
 
 AUDIO_DIR = Path(__file__).parent.parent / "audio files"
 

@@ -9,7 +9,7 @@ import pytest
 import networkx as nx
 from unittest.mock import patch, MagicMock
 
-from src.multi_extract import (
+from src.pipeline.extract import (
     run_pre_pass,
     run_focused_extraction,
     run_dedup,
@@ -17,7 +17,7 @@ from src.multi_extract import (
     run_multi_pass_pipeline,
     _get_existing_identity,
 )
-from src.schemas import (
+from src.core.schemas import (
     PrePassOutput,
     PassDefinition,
     FocusedExtractionOutput,
@@ -30,8 +30,8 @@ from src.schemas import (
     validate_dedup,
     validate_identity,
 )
-from src.graph_store import _fresh_graph
-from src.config import CORE_EXTRACTION_CATEGORIES, MAX_EXTRA_PASSES
+from src.storage.graph import _fresh_graph
+from src.core.config import CORE_EXTRACTION_CATEGORIES, MAX_EXTRA_PASSES
 
 
 # ─── Schema validation tests ────────────────────────────────────────────────
@@ -136,7 +136,7 @@ class TestIdentitySchema:
 # ─── Pre-pass logic tests ───────────────────────────────────────────────────
 
 class TestRunPrePass:
-    @patch("src.multi_extract.call_llm")
+    @patch("src.pipeline.extract.call_llm")
     def test_enforces_core_categories(self, mock_llm):
         """If the LLM returns only 1 core category, the other 2 are auto-added."""
         mock_llm.return_value = (
@@ -154,7 +154,7 @@ class TestRunPrePass:
         for core in CORE_EXTRACTION_CATEGORIES:
             assert core in categories
 
-    @patch("src.multi_extract.call_llm")
+    @patch("src.pipeline.extract.call_llm")
     def test_caps_custom_passes(self, mock_llm):
         """Custom passes beyond MAX_EXTRA_PASSES are trimmed."""
         mock_llm.return_value = (
@@ -194,7 +194,7 @@ class TestIdentitySmartUpdate:
         assert identity["name"] == "Ted"
         assert identity["name_confidence"] == 0.9
 
-    @patch("src.multi_extract.call_llm")
+    @patch("src.pipeline.extract.call_llm")
     def test_smart_update_keeps_higher_confidence(self, mock_llm):
         """If existing confidence is higher, the old value is kept."""
         G = _fresh_graph()
@@ -220,7 +220,7 @@ class TestIdentitySmartUpdate:
         # Age should be new (no existing data)
         assert result.identity.age == "28"
 
-    @patch("src.multi_extract.call_llm")
+    @patch("src.pipeline.extract.call_llm")
     def test_smart_update_replaces_lower_confidence(self, mock_llm):
         """If new confidence is higher, the new value wins."""
         G = _fresh_graph()
@@ -246,8 +246,8 @@ class TestIdentitySmartUpdate:
 
 class TestGatekeeperWithDedupOutput:
     def test_run_gatekeeper_with_dedup_output(self):
-        from src.gatekeeper import apply_actions
-        from src.schemas import GatekeeperOutput, GatekeeperAction
+        from src.pipeline.gatekeeper import apply_actions
+        from src.core.schemas import GatekeeperOutput, GatekeeperAction
 
         G = _fresh_graph()
         output = GatekeeperOutput(actions=[
@@ -257,10 +257,10 @@ class TestGatekeeperWithDedupOutput:
         assert "cv_discipline" in G.nodes
 
     def test_custom_category_action(self):
-        from src.gatekeeper import apply_actions, _apply_custom_action
+        from src.pipeline.gatekeeper import apply_actions, _apply_custom_action
 
         G = _fresh_graph()
-        from src.schemas import GatekeeperOutput, GatekeeperAction
+        from src.core.schemas import GatekeeperOutput, GatekeeperAction
         output = GatekeeperOutput(actions=[
             GatekeeperAction(
                 operation="add",
@@ -276,8 +276,8 @@ class TestGatekeeperWithDedupOutput:
         assert len(custom_nodes) == 1
 
     def test_conditional_short_term_wipe(self):
-        from src.gatekeeper import apply_actions
-        from src.schemas import GatekeeperOutput, GatekeeperAction
+        from src.pipeline.gatekeeper import apply_actions
+        from src.core.schemas import GatekeeperOutput, GatekeeperAction
 
         G = _fresh_graph()
         G.add_node("sts_old_state", node_type="short_term_state", label="old state")
@@ -291,7 +291,7 @@ class TestGatekeeperWithDedupOutput:
         assert "sts_old_state" in G.nodes
 
     def test_identity_applied_to_user_node(self):
-        from src.gatekeeper import apply_identity
+        from src.pipeline.gatekeeper import apply_identity
 
         G = _fresh_graph()
         identity_output = IdentityOutput(
@@ -313,7 +313,7 @@ class TestGatekeeperWithDedupOutput:
 # ─── Full pipeline orchestration ────────────────────────────────────────────
 
 class TestMultiPassPipeline:
-    @patch("src.multi_extract.call_llm")
+    @patch("src.pipeline.extract.call_llm")
     def test_full_pipeline_returns_expected_types(self, mock_llm):
         """Smoke test: the full pipeline returns (DedupOutput, IdentityOutput, list[str])."""
         # Mock responses for: pre_pass, 3 extractions, dedup, identity

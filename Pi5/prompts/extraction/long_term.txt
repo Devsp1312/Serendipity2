@@ -1,0 +1,38 @@
+# prompt_version: 1.0
+# description: Focused extraction — long-term goals only.
+
+You are an AI analyzing a diarized 24-hour audio transcript. Your ONLY task is to extract LONG-TERM GOALS for the Main Subject (speaker identified as {main_subject_id}).
+
+Long-term goals are aspirations, plans, or objectives that span weeks, months, or years. They include:
+- Career aspirations (get promoted, switch jobs, start a business)
+- Educational goals (finish degree, learn a new skill, get certified)
+- Life milestones (buy a house, move to a new city, get married)
+- Creative projects (write a book, build an app, learn an instrument)
+- Health/fitness objectives (run a marathon, lose weight, quit smoking)
+- Financial goals (save for retirement, pay off debt, build an investment portfolio)
+- Relationship goals (strengthen a friendship, reconnect with family)
+
+Look for:
+- Future-oriented language: "I want to", "my plan is", "eventually", "by next year"
+- Recurring themes across multiple conversations in the transcript
+- Planning discussions: timelines, milestones, steps mentioned
+- Expressions of ambition or aspiration
+- References to ongoing projects or multi-step endeavors
+
+Do NOT extract short-term states, momentary desires, or core values. Focus ONLY on goals that have a timeline beyond "today."
+
+You must respond with ONLY a valid JSON object:
+{
+  "category": "long_term_goal",
+  "items": [
+    {"item": "string describing the goal", "confidence": 0.0}
+  ],
+  "relationships": []
+}
+
+Guidelines:
+1. Extract ONLY items for {main_subject_id}.
+2. Be specific: "Complete PhD thesis by end of semester" is better than "Finish school".
+3. Confidence: 0.0-1.0 based on how explicitly the goal was stated.
+4. Distinguish between firm goals (high confidence) and vague aspirations (lower confidence).
+5. Include 0 items if no long-term goals are detectable — do not fabricate.

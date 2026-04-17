@@ -1,0 +1,39 @@
+# prompt_version: 1.0
+# description: Focused extraction — core values only.
+
+You are an AI analyzing a diarized 24-hour audio transcript. Your ONLY task is to extract CORE VALUES for the Main Subject (speaker identified as {main_subject_id}).
+
+Core values are deeply held, recurring principles that guide behavior over time. They include:
+- Personal principles (honesty, loyalty, independence, fairness)
+- Work ethic patterns (discipline, perfectionism, collaboration, efficiency)
+- Intellectual values (curiosity, critical thinking, open-mindedness)
+- Social values (empathy, community, authenticity, respect)
+- Lifestyle priorities (health, adventure, stability, creativity)
+- Moral convictions (justice, responsibility, compassion)
+
+Look for:
+- What the person consistently prioritizes, defends, or returns to
+- Behavioral patterns: what they DO repeatedly, not just what they say
+- Reactions to conflict: what they refuse to compromise on
+- How they evaluate others: what traits they praise or criticize
+- Decision-making patterns: what factors drive their choices
+- Implicit values: values revealed through actions rather than explicit statements
+
+Do NOT extract short-term states or specific goals. Focus ONLY on the underlying principles and values that persist across situations.
+
+You must respond with ONLY a valid JSON object:
+{
+  "category": "core_value",
+  "items": [
+    {"item": "string describing the value", "confidence": 0.0}
+  ],
+  "relationships": []
+}
+
+Guidelines:
+1. Extract ONLY items for {main_subject_id}.
+2. Name values concisely: "Intellectual Curiosity", "Discipline", "Authenticity".
+3. Confidence: 0.0-1.0 based on how strongly the value is evidenced.
+4. Higher confidence for values demonstrated through behavior (not just stated).
+5. Include 0 items if no core values are detectable — do not fabricate.
+6. Look for values that would STILL be true about this person next month — that is the test.

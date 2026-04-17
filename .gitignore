@@ -2,6 +2,8 @@
 .venv/
 logs/
 data/profiles/
+Friends/
+spongebob/
 Audio files/
 ted_processed/
 __pycache__/
